@@ -5,22 +5,37 @@
     >
     <v-layout
             align-center
-            justify-space-between
+            justify-center
           >
       <v-flex
-        sm6
-        md6
+        sm12
+        md12
+        xs12
+        lg12
+        xl8
+        class="d-none d-lg-block"
       >
-        <v-img
-          :src="require('../assets/MARCA_OFICIAL_03.png')"
-          aspect-ratio="1.7" contain
-        ></v-img>
+        <v-row>
+          <v-col cols="12" class="d-flex justify-center">
+            <p class="headline font-weight-regular text--secondary">Sistema de Relatórios</p>
+          </v-col>
+          <v-col cols="12" class="d-none d-lg-block">
+            <v-img
+              :src="require('../assets/MARCA_OFICIAL_03.png')"
+              aspect-ratio="1.7" contain
+            ></v-img>
+          </v-col>
+        </v-row>
+       
       </v-flex>
       <v-flex
-            xs12
-            sm4
-            md4
+            sm10
+            xs10
+            md6
+            lg6
+            xl4
           >
+          <p class="d-lg-none headline font-weight-regular text--secondary" style="text-align: center">Sistema de Relatórios</p>
           <v-alert
             :value="showAlert"
             dense

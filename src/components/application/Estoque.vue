@@ -3,7 +3,7 @@
     <v-container fluid>
     <v-row>
         <v-col>
-            <v-expansion-panels>
+            <v-expansion-panels v-model="panel" multiple>
                 <v-expansion-panel>
                 <v-expansion-panel-header>Filtro</v-expansion-panel-header>
                 <v-expansion-panel-content>
@@ -20,22 +20,10 @@
                                 label="Selecione a Empresa"
                             ></v-select>
                         </v-col>
-                        <v-col class="d-flex align-center justify-start">
+                        <v-col class="d-flex align-center justify-end">
                                 <v-btn color="blue darken-1" fab @click="pesquisar()" :loading="loadingList">
                                 <v-icon color='white'>mdi-magnify</v-icon>
                             </v-btn>      
-                        </v-col>
-                        <v-col class="d-flex align-center justify-end">
-                            <v-btn color="red darken-1" fab @click="generatePDF()" :loading="loadingList" :disabled="resultData.length == 0">
-                                <v-icon color='white'>mdi-file-pdf-box</v-icon></v-btn>
-
-                            <download-excel
-                                :data="resultData"
-                                :fields="headersExcel">
-                                <v-btn color="green darken-1" fab :loading="loadingList" :disabled="resultData.length == 0">
-                                    <v-icon color='white'>mdi-microsoft-excel</v-icon>
-                                </v-btn>
-                            </download-excel>
                         </v-col>
                     </v-row>
                 </v-expansion-panel-content>
@@ -52,7 +40,34 @@
                 class="elevation-1"
                 :loading="loadingList"
             >
+            <template v-slot:top>
+                <v-row class="d-flex align-center justify-end">
+
+                    <v-col class="d-flex align-center justify-end " style="margin-right: 15px">
+                        <p class="subtitle-1 font-weight-bold mr-3" style="margin-bottom: 0px">
+                            Exportar em 
+                        </p>
+                        <v-btn-toggle >
+                            <v-btn color="red darken-1" fab x-small @click="generatePDF()" :disabled="resultData.length == 0"       :loading="loadingList">
+                                <v-icon color='white'>mdi-file-pdf-box</v-icon>
+                            </v-btn>
+                        </v-btn-toggle>
+                        <download-excel
+                            :data="resultData"
+                            :fields="headersExcel">
+                            <v-btn-toggle >
+                                <v-btn color="green darken-1" x-small fab :disabled="resultData.length == 0" :loading="loadingList">
+                                    <v-icon color='white'>mdi-microsoft-excel</v-icon>
+                                </v-btn>
+                            </v-btn-toggle>
+                        </download-excel>
+                        
+                        
+                    </v-col>
+                </v-row>
+                </template>
             </v-data-table>
+            
         </v-col>
     </v-row>
     <div>
@@ -78,10 +93,12 @@ export default {
         //this.getAll();
     },
     data: () => ({
+        panel: [0],
         pdfHeader:{},
         headersExcel:{
             'Numero Bolsa':'numerobolsa',
             'Nome Produto':'nomeproduto',
+            'Sequencial':'sequencialseparacao',
             'Grupo Sanguíneo':'gruposanguineo',
             'Vencimento':'vencimento'
         },
@@ -97,6 +114,12 @@ export default {
                 align: 'left',
                 sortable: true,
                 value: 'nomeproduto',
+            },
+            {
+                text: 'Sequencial',
+                align: 'left',
+                sortable: true,
+                value: 'sequencialseparacao',
             },
             {
                 text: 'Grupo Sanguíneo',
@@ -122,6 +145,11 @@ export default {
     methods:{
         pesquisar(){
             this.getAll();
+        },
+         getEmpresaDescription(){
+            return this.listEmpresas.filter((element)=>{
+                return element.codigoempresa == this.empresaSelecionada;
+            })[0].descricaoempresa;
         },
         getEmpresas(){
             this.loadingList = true;
@@ -156,6 +184,7 @@ export default {
                 return [
                     element.numerobolsa,
                     element.nomeproduto,
+                    element.sequencialseparacao,
                     element.gruposanguineo,
                     element.vencimento
                 ]
@@ -165,6 +194,7 @@ export default {
                 [
                     {text: 'Numero Bolsa', style: 'tableHeader'}, 
                     {text: 'Nome Produto', style: 'tableHeader'},
+                    {text: 'Sequencial', style: 'tableHeader'},
                     {text: 'Grupo Sanguíneo', style: 'tableHeader'},
                     {text: 'Vencimento', style: 'tableHeader'}
                 ]
@@ -197,6 +227,8 @@ export default {
                                 text:[
                                     {text: 'Usuario: ', fontSize: 10},
                                     {text: this.pdfHeader.usuario+' \n', fontSize: 10, bold: true},
+                                    {text: 'Empresa: ', fontSize: 10},
+                                    {text: this.getEmpresaDescription()+' \n', fontSize: 10, bold: true},  
                                     {text: 'Data Geração: ', fontSize: 10},
                                     {text: this.pdfHeader.dataAcessoConsulta+' \n', fontSize: 10, bold: true}
                                 ],
@@ -208,7 +240,7 @@ export default {
                     {
                         style: 'tableExample',
                         table: {
-                            widths: ['*', '*', '*', '*'],
+                            widths: ['*', '*', '*', '*', '*'],
                             headerRows: 1,
                             body: customBody
                         },
@@ -230,7 +262,7 @@ export default {
                     {
                         style: 'tableExample',
                         table: {
-                            widths: ['*', '*', '*', '*'],
+                            widths: ['*', '*', '*', '*','*'],
                             headerRows: 1,
                             body: [
                                 [

@@ -3,8 +3,8 @@
     <v-container fluid>
     <v-row>
         <v-col>
-            <v-expansion-panels>
-                <v-expansion-panel>
+            <v-expansion-panels v-model="panel" multiple>
+                <v-expansion-panel >
                 <v-expansion-panel-header>Filtro</v-expansion-panel-header>
                 <v-expansion-panel-content>
                     <v-row>
@@ -47,23 +47,10 @@
                             </v-col>
                         </v-row>
                         <v-row style="margin-left: 15px">
-                            <v-col class="d-flex align-center justify-start">
+                            <v-col class="d-flex align-center justify-end">
                                     <v-btn color="blue darken-1" fab @click="pesquisar()" :loading="loadingList">
                                     <v-icon color='white'>mdi-magnify</v-icon>
                                 </v-btn>      
-                            </v-col>
-                            <v-col class="d-flex align-center justify-end">
-                                <v-btn color="red darken-1" fab @click="generatePDF()" :loading="loadingList" :disabled="resultData.length == 0">
-                                    <v-icon color='white'>mdi-file-pdf-box</v-icon></v-btn>
-
-                                <download-excel
-                                    :data="resultData"
-                                    :fields="headersExcel">
-                                    <v-btn color="green darken-1" fab :loading="loadingList" :disabled="resultData.length == 0">
-                                        <v-icon color='white'>mdi-microsoft-excel</v-icon>
-                                    </v-btn>
-                                </download-excel>
-                                
                             </v-col>
                         </v-row>
                     </v-row>
@@ -81,6 +68,32 @@
                 class="elevation-1"
                 :loading="loadingList"
             >
+                <template v-slot:top>
+                    <v-row class="d-flex align-center justify-end">
+
+                        <v-col class="d-flex align-center justify-end " style="margin-right: 15px">
+                            <p class="subtitle-1 font-weight-bold mr-3" style="margin-bottom: 0px">
+                                Exportar em 
+                            </p>
+                            <v-btn-toggle >
+                                <v-btn color="red darken-1" fab x-small @click="generatePDF()" :disabled="resultData.length == 0"       :loading="loadingList">
+                                    <v-icon color='white'>mdi-file-pdf-box</v-icon>
+                                </v-btn>
+                            </v-btn-toggle>
+                            <download-excel
+                                :data="resultData"
+                                :fields="headersExcel">
+                                <v-btn-toggle >
+                                    <v-btn color="green darken-1" x-small fab :disabled="resultData.length == 0" :loading="loadingList">
+                                        <v-icon color='white'>mdi-microsoft-excel</v-icon>
+                                    </v-btn>
+                                </v-btn-toggle>
+                            </download-excel>
+                            
+                            
+                        </v-col>
+                    </v-row>
+                </template>
             </v-data-table>
         </v-col>
     </v-row>
@@ -107,6 +120,7 @@ export default {
         //this.getAll();
     },
     data: () => ({
+        panel: [0],
         pdfHeader:{},
         headersExcel:{
             'Empresa':'descricaoempresa',
@@ -172,6 +186,11 @@ export default {
                 this.listEmpresas = res.data;
                 this.loadingList = false;
             });
+        },
+        getEmpresaDescription(){
+            return this.listEmpresas.filter((element)=>{
+                return element.codigoempresa == this.empresaSelecionada;
+            })[0].descricaoempresa;
         },
         castData(value){
             return value.substring(6,10)+"-"+value.substring(3,5)+"-"+value.substring(0,2)
@@ -246,6 +265,8 @@ export default {
                                     {text: this.pdfHeader.usuario+' \n', fontSize: 10, bold: true},
                                     {text: 'Data Geração: ', fontSize: 10},
                                     {text: this.pdfHeader.dataAcessoConsulta+' \n', fontSize: 10, bold: true},
+                                    {text: 'Empresa: ', fontSize: 10},
+                                    {text: this.getEmpresaDescription()+' \n', fontSize: 10, bold: true},                                    
                                     {text: 'Período: ', fontSize: 10},
                                     {text: this.dataInicio+' - '+this.dataFim, fontSize: 10, bold: true}
                                 ],

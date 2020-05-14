@@ -92,7 +92,7 @@ export default {
         var usrAdm = true;
         if(usrAdm){
             this.menu.push({
-                descricao: 'Menu',
+                descricao: 'Sangue Nativo',
                 menu:[
                     {
                         descricao:'Transfusões realizadas',
@@ -107,12 +107,17 @@ export default {
                         path:'/distribuidos'
                     },
                     {
-                        descricao:'Doadores',
-                        path:'/doadorouro'
-                    },
-                    {
                         descricao:'Descartados',
                         path:'/descartados'
+                    }
+                ]
+            },
+            {
+                descricao: 'Hemoam',
+                menu:[
+                    {
+                        descricao:'Doadores',
+                        path:'/doadorouro'
                     },
                     {
                         descricao:'Faturamento',
