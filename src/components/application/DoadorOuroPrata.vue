@@ -94,6 +94,7 @@
                             </v-btn-toggle>
                             <download-excel
                                 :data="resultData"
+                                :name="pdfHeader.titulo + ' '+pdfHeader.dataAcessoConsulta"
                                 :fields="headersExcel">
                                 <v-btn-toggle >
                                     <v-btn color="green darken-1" x-small fab :disabled="resultData.length == 0" :loading="loadingList">
@@ -225,7 +226,6 @@ export default {
         codigoEmpresa: "",
         listEmpresas: [],
         resultData: [],
-        empresaSelecionada: 0,
         loadingList: false
     }),
     methods:{
@@ -397,7 +397,7 @@ export default {
 
             var now = new Date();
 
-            pdfMake.createPdf(docDefinition).download();
+            pdfMake.createPdf(docDefinition).download(this.pdfHeader.titulo+' '+this.pdfHeader.dataAcessoConsulta);
         }
     }
 

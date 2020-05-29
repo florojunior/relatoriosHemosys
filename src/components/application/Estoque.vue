@@ -12,13 +12,19 @@
                             cols="12"
                             md="4"
                         >
-                            <v-select
+                            <v-autocomplete
                                 v-model="empresaSelecionada"
+                                :items="listEmpresas"
+                                :loading="isLoading"
+                                :search-input.sync="search"
+                                hide-no-data
+                                hide-selected
                                 item-text="descricaoempresa"
                                 item-value="codigoempresa"
-                                :items="listEmpresas"
-                                label="Selecione a Empresa"
-                            ></v-select>
+                                label="Empresas"
+                                placeholder="Nome da empresa"
+                                prepend-icon="mdi-database-search"
+                            ></v-autocomplete>
                         </v-col>
                         <v-col class="d-flex align-center justify-end">
                                 <v-btn color="blue darken-1" fab @click="pesquisar()" :loading="loadingList">
@@ -54,6 +60,7 @@
                         </v-btn-toggle>
                         <download-excel
                             :data="resultData"
+                            :name="pdfHeader.titulo + ' '+pdfHeader.dataAcessoConsulta"
                             :fields="headersExcel">
                             <v-btn-toggle >
                                 <v-btn color="green darken-1" x-small fab :disabled="resultData.length == 0" :loading="loadingList">
@@ -309,7 +316,7 @@ export default {
 
             var now = new Date();
 
-            pdfMake.createPdf(docDefinition).download();
+            pdfMake.createPdf(docDefinition).download(this.pdfHeader.titulo+' '+this.pdfHeader.dataAcessoConsulta);
         }
     }
 

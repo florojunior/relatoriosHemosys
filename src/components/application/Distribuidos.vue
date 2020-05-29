@@ -37,13 +37,19 @@
                                 cols="12"
                                 md="4"
                             >
-                                <v-select
+                                <v-autocomplete
                                     v-model="empresaSelecionada"
+                                    :items="listEmpresas"
+                                    :loading="isLoading"
+                                    :search-input.sync="search"
+                                    hide-no-data
+                                    hide-selected
                                     item-text="descricaoempresa"
                                     item-value="codigoempresa"
-                                    :items="listEmpresas"
-                                    label="Selecione a Empresa"
-                                ></v-select>
+                                    label="Empresas"
+                                    placeholder="Nome da empresa"
+                                    prepend-icon="mdi-database-search"
+                                ></v-autocomplete>
                             </v-col>
                         </v-row>
                         <v-row style="margin-left: 15px">
@@ -303,7 +309,8 @@ export default {
                                 ]
                             ]
                         }
-                    }
+                    },
+                    
                 ],
                 styles: {
                     img:{
@@ -336,7 +343,7 @@ export default {
 
             var now = new Date();
 
-            pdfMake.createPdf(docDefinition).download();
+            pdfMake.createPdf(docDefinition).download(this.pdfHeader.titulo+' '+this.pdfHeader.dataAcessoConsulta);
         }
     }
 

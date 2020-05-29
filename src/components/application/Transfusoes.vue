@@ -37,13 +37,19 @@
                                 cols="12"
                                 md="4"
                             >
-                                <v-select
+                                <v-autocomplete
                                     v-model="empresaSelecionada"
+                                    :items="listEmpresas"
+                                    :loading="isLoading"
+                                    :search-input.sync="search"
+                                    hide-no-data
+                                    hide-selected
                                     item-text="descricaoempresa"
                                     item-value="codigoempresa"
-                                    :items="listEmpresas"
-                                    label="Selecione a Empresa"
-                                ></v-select>
+                                    label="Empresas"
+                                    placeholder="Nome da empresa"
+                                    prepend-icon="mdi-database-search"
+                                ></v-autocomplete>
                             </v-col>
                         </v-row>
                         <v-row style="margin-left: 15px">
@@ -83,7 +89,8 @@
                             </v-btn-toggle>
                             <download-excel
                                 :data="resultData"
-                                :fields="headersExcel">
+                                :name="pdfHeader.titulo + ' '+pdfHeader.dataAcessoConsulta"
+                                :fields="resultData">
                                 <v-btn-toggle >
                                     <v-btn color="green darken-1" x-small fab :disabled="resultData.length == 0" :loading="loadingList">
                                         <v-icon color='white'>mdi-microsoft-excel</v-icon>
@@ -123,6 +130,7 @@ export default {
     },
     data: () => ({
         pdfHeader:{},
+        summarizer:[],
         headersExcel:{
             'Data de Transfusão':'descricaoempresa',
             'Numero Bolsa':'numerobolsa',
@@ -194,10 +202,30 @@ export default {
         dataFim: "",
         codigoEmpresa: "",
         listEmpresas:[],
+        listEmpresasFiltered:[],
         resultData: [],
         empresaSelecionada: 0,
         loadingList: false
     }),
+    watch:{
+        /*search (val) {
+
+            // Items have already been loaded
+            if (this.listEmpresas.length > 0) return
+
+            // Items have already been requested
+            if (this.isLoading) return
+
+            this.isLoading = true
+
+            this.$http.get('/lista-empresa').then(res => {
+                this.listEmpresas = res.data.filter((res)=>{
+                    this.isLoading = false;
+                    return res.descricaoempresa.search(val) != -1;
+                });
+            });
+      },*/
+    },
     methods:{
         isEnabled (slot) {
             return this.enabled === slot
@@ -231,6 +259,7 @@ export default {
             }).then(res => {
                             this.resultData = res.data.result;
                             this.pdfHeader = res.data.header;
+                            this.summarizer = res.data.totalizador;
                             this.loadingList = false;
                         });
         },
@@ -270,6 +299,27 @@ export default {
             for (let index = 0; index < resultData.length; index++) {
                 const element = resultData[index];
                 customBody.push(element);
+            }
+
+             var resultDataSummarizer = Object.assign([],this.summarizer.map((element)=>{
+                return [
+                    element.nomeproduto,
+                    element.quantidade
+                ]
+            }));
+
+
+            var customSummarizer = [
+                [
+                    {text: 'Nome de Produto', style: 'tableHeader'}, 
+                    {text: 'Total de Produto', style: 'tableHeader'}, 
+
+                ]
+            ];
+
+            for (let index = 0; index < resultDataSummarizer.length; index++) {
+                const element = resultDataSummarizer[index];
+                customSummarizer.push(element);
             }
 
             pdfMake.vfs = pdfFonts.pdfMake.vfs;
@@ -351,7 +401,35 @@ export default {
                                 ]
                             ]
                         }
-                    }
+                    },
+                    {
+                        style: 'tableExample',
+                        table: {
+                            headerRows: 1,
+                            body: customSummarizer
+                        },
+                        layout: {
+                            hLineWidth: function (i, node) {
+                                return (i === 0 || i === node.table.body.length) ? 2 : 1;
+                            },
+                            vLineWidth: function (i, node) {
+                                return (i === 0 || i === node.table.widths.length) ? 2 : 1;
+                            },
+                            hLineColor: function (i, node) {
+                                return (i === 0 || i === node.table.body.length) ? 'black' : 'gray';
+                            },
+                            vLineColor: function (i, node) {
+                                return (i === 0 || i === node.table.widths.length) ? 'black' : 'gray';
+                            },
+                            // hLineStyle: function (i, node) { return {dash: { length: 10, space: 4 }}; },
+                            // vLineStyle: function (i, node) { return {dash: { length: 10, space: 4 }}; },
+                            // paddingLeft: function(i, node) { return 4; },
+                            // paddingRight: function(i, node) { return 4; },
+                            // paddingTop: function(i, node) { return 2; },
+                            // paddingBottom: function(i, node) { return 2; },
+                            // fillColor: function (rowIndex, node, columnIndex) { return null; }
+                        }
+                    },
                 ],
                 styles: {
                     img:{
@@ -384,7 +462,7 @@ export default {
 
             var now = new Date();
 
-            pdfMake.createPdf(docDefinition).download();
+            pdfMake.createPdf(docDefinition).download(this.pdfHeader.titulo+' '+this.pdfHeader.dataAcessoConsulta);
         }
     }
 

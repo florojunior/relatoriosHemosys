@@ -143,7 +143,7 @@ export default {
 
             var now = new Date();
 
-            pdfMake.createPdf(docDefinition).download();
+            pdfMake.createPdf(docDefinition).download(this.pdfHeader.titulo+' '+this.pdfHeader.dataAcessoConsulta);
         }
     }
 
