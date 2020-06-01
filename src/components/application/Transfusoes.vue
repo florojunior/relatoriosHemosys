@@ -322,6 +322,13 @@ export default {
                 customSummarizer.push(element);
             }
 
+            customSummarizer.push(
+                [
+                    {text: 'Total de Produtos', style: 'tableHeader'},
+                    {text: this.resultData.length}
+                ]
+            );
+
             pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
             var docDefinition = {
@@ -382,24 +389,6 @@ export default {
                             // paddingTop: function(i, node) { return 2; },
                             // paddingBottom: function(i, node) { return 2; },
                             // fillColor: function (rowIndex, node, columnIndex) { return null; }
-                        }
-                    },
-                    {
-                        style: 'tableExample',
-                        table: {
-                            widths: ['*', '*', '*', '*', '*'],
-                            headerRows: 1,
-                            body: [
-                                [
-                                    {
-                                        text: 'Total de Produtos',
-                                        style: 'tableHeader'
-                                    },
-                                    {
-                                        text: this.resultData.length
-                                    },
-                                ]
-                            ]
                         }
                     },
                     {

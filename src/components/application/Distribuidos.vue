@@ -127,7 +127,10 @@ export default {
     },
     data: () => ({
         panel: [0],
+        search: '',
+        isLoading: false,
         pdfHeader:{},
+        summarizer:[],
         headersExcel:{
             'Numero Bolsa':'NUMEROBOLSA',
             'Nome Produto':'PRODUTO',
@@ -205,6 +208,7 @@ export default {
             }).then(res => {
                             this.resultData = res.data.result;
                             this.pdfHeader = res.data.header;
+                            this.summarizer = res.data.totalizador;
                             this.loadingList = false;
                         });
         },
@@ -222,7 +226,6 @@ export default {
                 ]
             }));
 
-            console.log(resultData);
             var customBody = [
                 [
                     {text: 'Numero Bolsa', style: 'tableHeader'}, 
@@ -237,6 +240,34 @@ export default {
                 const element = resultData[index];
                 customBody.push(element);
             }
+
+            var resultDataSummarizer = Object.assign([],this.summarizer.map((element)=>{
+                return [
+                    element.NOMEPRODUTO,
+                    element.QUANTIDADE
+                ]
+            }));
+
+
+            var customSummarizer = [
+                [
+                    {text: 'Nome de Produto', style: 'tableHeader'}, 
+                    {text: 'Total de Produto', style: 'tableHeader'}, 
+
+                ]
+            ];
+
+            for (let index = 0; index < resultDataSummarizer.length; index++) {
+                const element = resultDataSummarizer[index];
+                customSummarizer.push(element);
+            }
+
+            customSummarizer.push(
+                [
+                    {text: 'Total de Produtos', style: 'tableHeader'},
+                    {text: this.resultData.length}
+                ]
+            );
 
             pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
@@ -295,6 +326,34 @@ export default {
                     {
                         style: 'tableExample',
                         table: {
+                            headerRows: 1,
+                            body: customSummarizer
+                        },
+                        layout: {
+                            hLineWidth: function (i, node) {
+                                return (i === 0 || i === node.table.body.length) ? 2 : 1;
+                            },
+                            vLineWidth: function (i, node) {
+                                return (i === 0 || i === node.table.widths.length) ? 2 : 1;
+                            },
+                            hLineColor: function (i, node) {
+                                return (i === 0 || i === node.table.body.length) ? 'black' : 'gray';
+                            },
+                            vLineColor: function (i, node) {
+                                return (i === 0 || i === node.table.widths.length) ? 'black' : 'gray';
+                            },
+                            // hLineStyle: function (i, node) { return {dash: { length: 10, space: 4 }}; },
+                            // vLineStyle: function (i, node) { return {dash: { length: 10, space: 4 }}; },
+                            // paddingLeft: function(i, node) { return 4; },
+                            // paddingRight: function(i, node) { return 4; },
+                            // paddingTop: function(i, node) { return 2; },
+                            // paddingBottom: function(i, node) { return 2; },
+                            // fillColor: function (rowIndex, node, columnIndex) { return null; }
+                        }
+                    },
+                    {
+                        style: 'tableExample',
+                        table: {
                             widths: ['*', '*', '*', '*', '*'],
                             headerRows: 1,
                             body: [
@@ -309,8 +368,7 @@ export default {
                                 ]
                             ]
                         }
-                    },
-                    
+                    }                    
                 ],
                 styles: {
                     img:{

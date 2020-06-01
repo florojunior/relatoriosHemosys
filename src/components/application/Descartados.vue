@@ -129,6 +129,8 @@ export default {
     data: () => ({
         panel: [0],
         pdfHeader:{},
+        search: '',
+        isLoading: false,
         headersExcel:{
             'Empresa':'descricaoempresa',
             'Numero Bolsa':'numerobolsa',
@@ -181,7 +183,9 @@ export default {
         listEmpresas:[],
         resultData: [],
         empresaSelecionada: 0,
-        loadingList: false
+        loadingList: false,
+        search: '',
+        isLoading: false
     }),
     methods:{
         pesquisar(){
@@ -213,6 +217,7 @@ export default {
             }).then(res => {
                             this.resultData = res.data.result;
                             this.pdfHeader = res.data.header;
+                            this.summarizer = res.data.totalizador;
                             this.loadingList = false;
                         });
         },
@@ -223,7 +228,6 @@ export default {
             
             var resultData = Object.assign([],this.resultData.map((element)=>{
                 return [
-                    element.descricaoempresa,
                     element.numerobolsa,
                     element.nomeproduto,
                     element.sequencialseparacao,
@@ -234,7 +238,6 @@ export default {
 
             var customBody = [
                 [
-                    {text: 'Empresa', style: 'tableHeader'}, 
                     {text: 'Numero Bolsa', style: 'tableHeader'}, 
                     {text: 'Nome Produto', style: 'tableHeader'},
                     {text: 'Sequencial', style: 'tableHeader'},
@@ -247,6 +250,34 @@ export default {
                 const element = resultData[index];
                 customBody.push(element);
             }
+
+            var resultDataSummarizer = Object.assign([],this.summarizer.map((element)=>{
+                return [
+                    element.NOMEPRODUTO,
+                    element.QUANTIDADE
+                ]
+            }));
+
+
+            var customSummarizer = [
+                [
+                    {text: 'Nome de Produto', style: 'tableHeader'}, 
+                    {text: 'Total de Produto', style: 'tableHeader'}, 
+
+                ]
+            ];
+
+            for (let index = 0; index < resultDataSummarizer.length; index++) {
+                const element = resultDataSummarizer[index];
+                customSummarizer.push(element);
+            }
+
+            customSummarizer.push(
+                [
+                    {text: 'Total de Produtos', style: 'tableHeader'},
+                    {text: this.resultData.length}
+                ]
+            );
 
             pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
@@ -286,7 +317,8 @@ export default {
                         style: 'tableExample',
                         table: {
                             headerRows: 1,
-                            body: customBody
+                            body: customBody,
+                            widths: ['*', '*', '*', '*','*'],
                         },
                         layout: {
                             hLineWidth: function (i, node) {
@@ -306,7 +338,7 @@ export default {
                     {
                         style: 'tableExample',
                         table: {
-                            widths: ['*', '*', '*', '*', '*'],
+                            widths: ['*', '*', '*', '*'],
                             headerRows: 1,
                             body: [
                                 [
