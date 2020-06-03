@@ -87,7 +87,8 @@
                                 </v-btn>
                             </v-btn-toggle>
                             <download-excel
-                                :data="resultData"
+                                :data="dataExcel"
+                                :title="[pdfHeader.titulo,'Data de Geração: '+pdfHeader.dataAcessoConsulta, 'Usuário: '+ pdfHeader.usuario, 'Empresa:'+getEmpresaDescription(), '']"
                                 :name="pdfHeader.titulo + ' '+pdfHeader.dataAcessoConsulta"
                                 :fields="headersExcel">
                                 <v-btn-toggle >
@@ -96,8 +97,6 @@
                                     </v-btn>
                                 </v-btn-toggle>
                             </download-excel>
-                            
-                            
                         </v-col>
                     </v-row>
                 </template>
@@ -185,7 +184,8 @@ export default {
         empresaSelecionada: 0,
         loadingList: false,
         search: '',
-        isLoading: false
+        isLoading: false,
+        summarizer:[],
     }),
     methods:{
         pesquisar(){
@@ -253,8 +253,8 @@ export default {
 
             var resultDataSummarizer = Object.assign([],this.summarizer.map((element)=>{
                 return [
-                    element.NOMEPRODUTO,
-                    element.QUANTIDADE
+                    element.nomeproduto,
+                    element.quantidade
                 ]
             }));
 
@@ -338,7 +338,35 @@ export default {
                     {
                         style: 'tableExample',
                         table: {
-                            widths: ['*', '*', '*', '*'],
+                            headerRows: 1,
+                            body: customSummarizer
+                        },
+                        layout: {
+                            hLineWidth: function (i, node) {
+                                return (i === 0 || i === node.table.body.length) ? 2 : 1;
+                            },
+                            vLineWidth: function (i, node) {
+                                return (i === 0 || i === node.table.widths.length) ? 2 : 1;
+                            },
+                            hLineColor: function (i, node) {
+                                return (i === 0 || i === node.table.body.length) ? 'black' : 'gray';
+                            },
+                            vLineColor: function (i, node) {
+                                return (i === 0 || i === node.table.widths.length) ? 'black' : 'gray';
+                            },
+                            // hLineStyle: function (i, node) { return {dash: { length: 10, space: 4 }}; },
+                            // vLineStyle: function (i, node) { return {dash: { length: 10, space: 4 }}; },
+                            // paddingLeft: function(i, node) { return 4; },
+                            // paddingRight: function(i, node) { return 4; },
+                            // paddingTop: function(i, node) { return 2; },
+                            // paddingBottom: function(i, node) { return 2; },
+                            // fillColor: function (rowIndex, node, columnIndex) { return null; }
+                        }
+                    },
+                    {
+                        style: 'tableExample',
+                        table: {
+                            widths: ['*', '*', '*', '*', '*'],
                             headerRows: 1,
                             body: [
                                 [
@@ -387,8 +415,40 @@ export default {
 
             pdfMake.createPdf(docDefinition).download(this.pdfHeader.titulo+' '+this.pdfHeader.dataAcessoConsulta);
         }
-    }
+    },
+    computed:{
+        dataExcel(){
+            var resultArrayExcel = Object.assign([],this.resultData);
+            for (let index = 0; index < this.summarizer.length; index++) {
 
+                if(index == 0){
+                    resultArrayExcel.push({});
+                    resultArrayExcel.push({
+                        'descricaoempresa': 'Quantidade de Produtos',
+                        'numerobolsa': 'Nome do Produto'
+                    });
+                }
+
+                var customDataTotalLine = {};
+
+                const dataTotalExcel = this.summarizer[index];
+
+                var dataHEaderExcelKeyArray = Object.keys(this.headersExcel);
+                for (let indexDataHEaderExcelKeyArray = 0; 
+                    (indexDataHEaderExcelKeyArray < dataHEaderExcelKeyArray.length && 
+                     indexDataHEaderExcelKeyArray < Object.keys(this.summarizer[index]).length);
+                     indexDataHEaderExcelKeyArray++) 
+                {
+
+                    customDataTotalLine[this.headersExcel[dataHEaderExcelKeyArray[indexDataHEaderExcelKeyArray]]] 
+                    = this.summarizer[index][Object.keys(this.summarizer[index])[indexDataHEaderExcelKeyArray]];
+                }
+
+                resultArrayExcel.push(customDataTotalLine);
+            }
+            return resultArrayExcel;
+        }
+    }
 }
 </script>
 

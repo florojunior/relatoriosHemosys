@@ -87,7 +87,9 @@
                                 </v-btn>
                             </v-btn-toggle>
                             <download-excel
-                                :data="resultData"
+                                :data="dataExcel"
+                                :title="[pdfHeader.titulo,'Data de Geração: '+pdfHeader.dataAcessoConsulta, 'Usuário: '+ pdfHeader.usuario, 'Empresa:'+getEmpresaDescription(), '']"
+                                :name="pdfHeader.titulo + ' '+pdfHeader.dataAcessoConsulta"
                                 :fields="headersExcel">
                                 <v-btn-toggle >
                                     <v-btn color="green darken-1" x-small fab :disabled="resultData.length == 0" :loading="loadingList">
@@ -176,7 +178,8 @@ export default {
         listEmpresas:[],
         resultData: [],
         empresaSelecionada: 0,
-        loadingList: false
+        loadingList: false,
+        summarizer:[],
     }),
     methods:{
         pesquisar(){
@@ -402,6 +405,39 @@ export default {
             var now = new Date();
 
             pdfMake.createPdf(docDefinition).download(this.pdfHeader.titulo+' '+this.pdfHeader.dataAcessoConsulta);
+        }
+    },
+    computed:{
+        dataExcel(){
+            var resultArrayExcel = Object.assign([],this.resultData);
+            for (let index = 0; index < this.summarizer.length; index++) {
+
+                if(index == 0){
+                    resultArrayExcel.push({});
+                    resultArrayExcel.push({
+                        'NUMEROBOLSA': 'Quantidade de Produtos',
+                        'PRODUTO': 'Nome do Produto'
+                    });
+                }
+
+                var customDataTotalLine = {};
+
+                const dataTotalExcel = this.summarizer[index];
+
+                var dataHEaderExcelKeyArray = Object.keys(this.headersExcel);
+                for (let indexDataHEaderExcelKeyArray = 0; 
+                    (indexDataHEaderExcelKeyArray < dataHEaderExcelKeyArray.length && 
+                     indexDataHEaderExcelKeyArray < Object.keys(this.summarizer[index]).length);
+                     indexDataHEaderExcelKeyArray++) 
+                {
+
+                    customDataTotalLine[this.headersExcel[dataHEaderExcelKeyArray[indexDataHEaderExcelKeyArray]]] 
+                    = this.summarizer[index][Object.keys(this.summarizer[index])[indexDataHEaderExcelKeyArray]];
+                }
+
+                resultArrayExcel.push(customDataTotalLine);
+            }
+            return resultArrayExcel;
         }
     }
 
