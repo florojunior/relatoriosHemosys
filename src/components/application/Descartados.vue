@@ -131,20 +131,13 @@ export default {
         search: '',
         isLoading: false,
         headersExcel:{
-            'Empresa':'descricaoempresa',
+            'Data descarte':'datadescarte',
             'Numero Bolsa':'numerobolsa',
             'Nome Produto':'nomeproduto',
-            'Sequencial':'sequencialseparacao',
-            'Data descarte':'datadescarte',
+            'Sequencial':'sequencialseparacao',      
             'Descrição':'descricaomotivo'
         },
         headers: [
-            {
-                text: 'Empresa',
-                align: 'left',
-                sortable: true,
-                value: 'descricaoempresa',
-            },
             {
                 text: 'Numero Bolsa',
                 align: 'left',
@@ -228,20 +221,20 @@ export default {
             
             var resultData = Object.assign([],this.resultData.map((element)=>{
                 return [
+                    element.datadescarte,
                     element.numerobolsa,
                     element.nomeproduto,
                     element.sequencialseparacao,
-                    element.datadescarte,
                     element.descricaomotivo
                 ]
             }));
 
             var customBody = [
-                [
+                [   
+                    {text: 'Data descarte', style: 'tableHeader'},
                     {text: 'Numero Bolsa', style: 'tableHeader'}, 
                     {text: 'Nome Produto', style: 'tableHeader'},
                     {text: 'Sequencial', style: 'tableHeader'},
-                    {text: 'Data descarte', style: 'tableHeader'},
                     {text: 'Motivo', style: 'tableHeader'}
                 ]
             ];

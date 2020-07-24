@@ -142,6 +142,12 @@ export default {
         },
         headers: [
             {
+                text: 'Data de distribuição',
+                align: 'left',
+                sortable: true,
+                value: 'DATAHORADISTRIBUICAO',
+            },
+            {
                 text: 'Numero Bolsa',
                 align: 'left',
                 sortable: true,
@@ -221,6 +227,7 @@ export default {
         generatePDF(){
             var resultData = Object.assign([],this.resultData.map((element)=>{
                 return [
+                    element.DATAHORADISTRIBUICAO,
                     element.NUMEROBOLSA,
                     element.PRODUTO,
                     element.SEQUENCIALSEPARACAO,
@@ -230,7 +237,8 @@ export default {
             }));
 
             var customBody = [
-                [
+                [   
+                    {text: 'Data de Distribuição', style: 'tableHeader'}, 
                     {text: 'Numero Bolsa', style: 'tableHeader'}, 
                     {text: 'Nome Produto', style: 'tableHeader'},
                     {text: 'Sequencial Separação', style: 'tableHeader'},
@@ -307,7 +315,7 @@ export default {
                     {
                         style: 'tableExample',
                         table: {
-                            widths: [100, '*', 150, 100, 200],
+                            widths: ['*', 100, '*', 150, 100, 200],
                             headerRows: 1,
                             body: customBody
                         },
@@ -357,7 +365,7 @@ export default {
                     {
                         style: 'tableExample',
                         table: {
-                            widths: ['*', '*', '*', '*', '*'],
+                            widths: ['*', '*', '*', '*', '*', '*'],
                             headerRows: 1,
                             body: [
                                 [

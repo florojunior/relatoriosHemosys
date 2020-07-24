@@ -10,7 +10,8 @@
 <script>
 export default {
   created: function(){
-
+    this.$http.get('/verifica-autenticacao').then(res => {
+    });
   },
   data: () => ({
 
